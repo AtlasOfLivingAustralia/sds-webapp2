@@ -32,7 +32,7 @@ grails.project.dependency.resolution = {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes e.g.
         // runtime 'mysql:mysql-connector-java:5.1.27'
         // runtime 'org.postgresql:postgresql:9.3-1100-jdbc41'
-        compile("au.org.ala:sds:1.3.0") {
+        compile("au.org.ala:sds:1.4.1-SNAPSHOT") {
             excludes "spring-jdbc"
 	        excludes "servlet-api"
         }
