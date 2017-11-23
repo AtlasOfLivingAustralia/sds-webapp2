@@ -166,6 +166,7 @@ class SDSService {
             SensitiveSpeciesFinder tmpfinder = SensitiveSpeciesFinderFactory.getSensitiveSpeciesFinder("file:///data/sds/sensitive-species.xml", searcher, true);
             synchronized (lock){
                 finder = tmpfinder
+                firstLoad = false
             }
         }
         catch (Exception e){

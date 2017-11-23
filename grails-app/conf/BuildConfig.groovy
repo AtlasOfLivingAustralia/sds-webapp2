@@ -51,7 +51,7 @@ grails.project.dependency.resolution = {
         // plugins for the compile step
         //compile ":scaffolding:2.1.2"
         compile ":quartz:1.0.1"
-        compile ":asset-pipeline:2.14.1"
+        //compile ":asset-pipeline:2.14.1"
         runtime ":resources:1.2.14"
 
         // plugins needed at runtime but not for compilation
