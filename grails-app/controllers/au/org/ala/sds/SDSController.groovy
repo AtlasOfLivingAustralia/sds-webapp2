@@ -14,6 +14,7 @@
  */
 package au.org.ala.sds
 
+import au.org.ala.sds.util.Configuration
 import au.org.ala.sds.util.GeoLocationHelper
 import grails.converters.JSON
 
@@ -60,14 +61,16 @@ class SDSController {
      */
     def lookup ={
         log.debug(params)
-        render SDSService.lookupSpecies(params.scientificName, params.latitude, params.longitude, params.date) as JSON
-
+        if (!SDSService.isReady())
+            render(status: 503, text: "The SDS service is not yet ready. " + SDSService.status)
+        else
+            render SDSService.lookupSpecies(params.scientificName, params.latitude, params.longitude, params.date) as JSON
     }
 
     /**
      * SDS layers
      */
     def layers = {
-        render GeoLocationHelper.getGeospatialLayers() as JSON
+        render Configuration.getInstance().getGeospatialLayers() as JSON
     }
 }

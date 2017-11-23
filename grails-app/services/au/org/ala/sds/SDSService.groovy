@@ -48,23 +48,32 @@ class SDSService {
     private SensitiveSpeciesFinder finder;
     private ALANameSearcher searcher;
     private boolean firstLoad = true;
+    private String status = "Initialising"
     def grailsApplication
 
     public SDSService(){
         //sensitiveFileName = grailsApplication.config.sds.file?:sensitiveFileName
         new Thread(){
             public void run(){
-                File file = new File(sensitiveFileName)
-                searcher = new ALANameSearcher(Configuration.getInstance().getNameMatchingIndex())
-                if(file.exists()){
-                    lastUpdated = new Date(file.lastModified())
-                    log.info("Sensitive Species List last generated " +lastUpdated)
-                    finder = SensitiveSpeciesFinderFactory.getSensitiveSpeciesFinder(file.toURI().toString(), searcher)
-                    log.info("Finished loading the finder ")
-                }  else{
-                    forceReload()
+                try {
+                    File file = new File(sensitiveFileName)
+                    searcher = new ALANameSearcher(Configuration.getInstance().getNameMatchingIndex())
+                    if (file.exists()) {
+                        status = "Loading initial sensitive species list"
+                        lastUpdated = new Date(file.lastModified())
+                        log.info("Sensitive Species List last generated " + lastUpdated)
+                        finder = SensitiveSpeciesFinderFactory.getSensitiveSpeciesFinder(file.toURI().toString(), searcher)
+                        log.info("Finished loading the finder ")
+                    } else {
+                        status = "Generating sensitive species list"
+                        forceReload()
+                    }
+                    firstLoad = false;
+                    status = "Ready"
+                } catch (Exception ex) {
+                    status = "The sensitive species list has not loaded. Returning errors until fixed. Cause: " + ex.getMessage()
+                    log.error("A-WOOGA! A-WOOGA! The sensitive species list has not loaded.", ex)
                 }
-                firstLoad=false;
             }
             }.start()
     }
@@ -74,6 +83,26 @@ class SDSService {
      */
     def getLastUpdated(){
         return lastUpdated
+    }
+
+    /**
+     * Check to see whether we are ready to go
+     *
+     * @return True if the lookup service can be used
+     */
+    def isReady() {
+        return !firstLoad && finder != null
+    }
+
+    /**
+     * Get the status string.
+     * <p>
+     * This provides information to users so that they can determine what the problem is.
+     *
+     * @return The status string
+     */
+    String getStatus() {
+        return status
     }
 
     /**
@@ -90,6 +119,8 @@ class SDSService {
      */
     public void reload(boolean forced){
         synchronized (lock){
+            String oldStatus = status
+            status = "Reloading status lists"
             log.info("Testing to see if we need to update lists.")
             //when it is a forced reload the date is ignored.
             Date date = forced ? null : lastUpdated;
@@ -108,14 +139,18 @@ class SDSService {
                     FileUtils.copyFile(new File(sensitiveFileName + ".tmp"), new File(sensitiveFileName ))
                     lastUpdated = new Date()
                     initFinder()
+                    status = "Ready"
                 } else{
                     log.info("List is already up to date.")
                 }
             } catch(FileNotFoundException e){
+                status = oldStatus
                 log.error("Unable to update the SDS species file." , e)
             } catch(IOException e){
+                status = oldStatus
                 log.error(e);
             } catch (Exception e){
+                status = oldStatus
                 log.error(e);
             }
 
@@ -134,16 +169,14 @@ class SDSService {
             }
         }
         catch (Exception e){
-            log.error("Unable to recreate the SDS finder with new list.",e)
+            throw new IllegalStateException("Unable to recreate the SDS finder with new list.", e)
         }
     }
 
 
     public SpeciesReport lookupSpecies(String name, String latitude, String longitude, String date) {
-        if(firstLoad && finder == null){
-            SpeciesReport sr = new SpeciesReport();
-            sr.status="The SDS finder has not been initialised, please try again in 5 minutes. Let us know if you continue to see this error message";
-            return sr;
+        if(firstLoad || finder == null) { // Should not be called bu controller
+            throw new IllegalStateException("The SDS finder has not been initialised, please try again in 5 minutes. Let us know if you continue to see this error message")
         }
         def status=[]
         def results=[:]
@@ -199,10 +232,10 @@ class SDSService {
         //populate the result
         def speciesReport = new SpeciesReport()
         speciesReport.scientificName = name
-        if(st.getCommonName()) {
+        if(st?.getCommonName()) {
             speciesReport.commonName = st.getCommonName()
         }
-        if(st.getAcceptedName() && st.getAcceptedName() != name) {
+        if(st?.getAcceptedName() && st.getAcceptedName() != name) {
             speciesReport.acceptedName = st.getAcceptedName()
         }
         if(status.size()>0) {

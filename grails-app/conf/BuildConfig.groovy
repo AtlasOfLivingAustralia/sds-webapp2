@@ -32,9 +32,13 @@ grails.project.dependency.resolution = {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes e.g.
         // runtime 'mysql:mysql-connector-java:5.1.27'
         // runtime 'org.postgresql:postgresql:9.3-1100-jdbc41'
+        compile 'com.google.guava:guava:19.0'
         compile("au.org.ala:sds:1.4.1-SNAPSHOT") {
             excludes "spring-jdbc"
 	        excludes "servlet-api"
+        }
+        compile ('org.jasig.cas.client:cas-client-core:3.4.1') {
+            excludes([group: 'javax.servlet', name: 'servlet-api'])
         }
     }
 
@@ -42,25 +46,22 @@ grails.project.dependency.resolution = {
         build ":release:3.0.1"
         //provided ":grails-plugin-async:2.3.7"
         // plugins for the build system only
-        build ":tomcat:7.0.52.1"
+        build ":tomcat:7.0.55"
 
         // plugins for the compile step
-        compile ":scaffolding:2.0.2"
-       // compile ':cache:1.1.8'
+        //compile ":scaffolding:2.1.2"
         compile ":quartz:1.0.1"
-
+        compile ":asset-pipeline:2.14.1"
+        runtime ":resources:1.2.14"
 
         // plugins needed at runtime but not for compilation
         runtime ":database-migration:1.3.8"
-        runtime ":ala-bootstrap2:2.1"
-        runtime ":resources:1.2.14"
-        if (Environment.current == Environment.PRODUCTION) {
-            runtime ":zipped-resources:1.0.1"
-            runtime ":cached-resources:1.1"
-            compile ":cache-headers:1.1.7"
-            runtime ":yui-minify-resources:0.1.5"
+        runtime ":ala-bootstrap3:2.0.0-SNAPSHOT"
+        runtime ":cache-headers:1.1.7"
+        runtime ":cached-resources:1.1"
+        runtime (":ala-auth:2.2-SNAPSHOT") {
+            exclude "servlet-api"
         }
-        runtime ':ala-auth:1.2'
         
         // Uncomment these (or add new ones) to enable additional resources capabilities
         //runtime ":zipped-resources:1.0.1"

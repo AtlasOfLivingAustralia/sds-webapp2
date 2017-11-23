@@ -30,12 +30,12 @@ println "[${appName}] (*) grails.config.locations = ${grails.config.locations}"
  * NOTE: Some of these will be ignored if default_config exists
  \******************************************************************************/
 
-serverName = 'http://sds.ala.org.au'
-security.cas.appServerName = "http://sds.ala.org.au"
+serverName = 'https://sds.ala.org.au'
+security.cas.appServerName = "https://sds.ala.org.au"
 security.cas.casServerName = 'https://auth.ala.org.au'
 security.cas.uriFilterPattern = '/refresh'
 security.cas.authenticateOnlyIfLoggedInPattern = "/.*"
-ssecurity.cas.uriExclusionFilterPattern = '/*.xml'
+security.cas.uriExclusionFilterPattern = '/*.xml'
 security.cas.loginUrl = 'https://auth.ala.org.au/cas/login'
 security.cas.logoutUrl = 'https://auth.ala.org.au/cas/logout'
 security.cas.casServerUrlPrefix = 'https://auth.ala.org.au/cas'
@@ -138,15 +138,15 @@ grails.hibernate.osiv.readonly = false
 environments {
     development {
         grails.logging.jul.usebridge = true
-        grails.serverURL = "http://natasha.ala.org.au:8080/sds-webapp2"
-        serverName='http://natasha.ala.org.au:8080'
+        grails.serverURL = "http://dev.ala.org.au:8080/sds-webapp2"
+        serverName='http://dev.ala.org.au:8080'
         security.cas.appServerName = serverName
         security.cas.contextPath = "/sds-webapp2"
     }
     production {
         grails.logging.jul.usebridge = false
-        grails.serverURL = 'http://sds.ala.org.au'
-        serverName='http://sds.ala.org.au'
+        grails.serverURL = 'https://sds.ala.org.au'
+        serverName='https://sds.ala.org.au'
         security.cas.appServerName = serverName
     }
 }
